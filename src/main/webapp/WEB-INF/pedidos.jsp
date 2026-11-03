@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.List,java.util.Collections,pt.ecl.Pedido,pt.ecl.Html" %>
+<%@ page import="java.util.List,java.util.Collections,pt.ecl.Pedido,pt.ecl.*" %>
 <%
 List<Pedido> pedidos = (List<Pedido>) request.getAttribute("pedidos");
 if (pedidos == null) {
@@ -59,7 +59,34 @@ Object erro = request.getAttribute("erro");
 
     <% if (pedidos.isEmpty()) { %>
         <p>Ainda não existem pedidos.</p>
-    <% } else { %>
-        <% for (Pedido p : pedidos) { %>
-            <article>
-                <h3>Pedido <%= p.id %> — <%= Html.escapar(p.sala) %></h3>
+    <% } %>
+
+    <% for (Pedido p : pedidos) { %>
+        <article>
+            <h3>Pedido <%= p.id %> — <%= Html.escapar(p.sala) %></h3>
+            <p>Registo: <%= Html.escapar(p.data) %></p>
+            <p>Requerente: <%= Html.escapar(p.nome) %></p>
+            <p>Equipamento: <%= Html.escapar(p.equipamento) %></p>
+            <p class="descricao"><%= Html.escapar(p.descricao) %></p>
+            <p>Estado: <strong><%= Html.escapar(p.estado) %></strong></p>
+
+            <form method="post" action="<%= base %>/pedidos">
+                <input type="hidden" name="acao" value="atualizar">
+                <input type="hidden" name="id" value="<%= p.id %>">
+
+                <label for="estado-<%= p.id %>">Estado</label>
+                <select id="estado-<%= p.id %>" name="estado">
+                    <% for (String e : List.of("Por analisar", "Em intervenção", "A aguardar", "Resolvido")) { %>
+                        <option <%= e.equals(p.estado) ? "selected" : "" %>><%= Html.escapar(e) %></option>
+                    <% } %>
+                </select>
+
+                <label for="observacao-<%= p.id %>">Observação técnica ou solução</label>
+                <textarea id="observacao-<%= p.id %>" name="observacao"><%= Html.escapar(p.observacao) %></textarea>
+
+                <button type="submit">Guardar acompanhamento</button>
+            </form>
+        </article>
+    <% } %>
+</body>
+</html>
